@@ -10,4 +10,5 @@ public class CreateBorrowDTO {
     private Integer memberId;
     private LocalDate dueDate;
     private LocalDate returnDate;
+    private String status;
 }

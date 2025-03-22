@@ -9,6 +9,8 @@ const BorrowManagement = () => {
     const [borrowRecords, setBorrowRecords] = useState([]);
     const [members, setMembers] = useState([]);
     const [books, setBooks] = useState([]);
+    const [filteredRecords, setFilteredRecords] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const getBorrowRecords = () => {
         fetch('http://localhost:8080/api/v1/borrow')
@@ -77,6 +79,14 @@ const BorrowManagement = () => {
         setIsModalOpen(true);
     };
 
+    useEffect(() => {
+        setFilteredRecords(
+            borrowRecords.filter(record =>
+                record.member.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+        );
+    }, [searchTerm, borrowRecords]);
+
 
 
     const returnBook = (id) => {
@@ -93,21 +103,30 @@ const BorrowManagement = () => {
     return (
         <div className="p-6 max-w-3xl mx-auto">
             <h2 className="text-2xl font-bold mb-6 text-center">Borrow Management</h2>
-            <button
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                onClick={() => { setIsModalOpen(true); setEditingId(null); setForm({ memberId: "", bookId: "", dueDate: "" }); }}
-            >
-                Create Borrow Record
-            </button>
+            <div className="mb-4 gap-2 flex justify-center flex-col items-center">
+                <button
+                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 w-[250px]"
+                    onClick={() => { setIsModalOpen(true); setEditingId(null); setForm({ memberId: "", bookId: "", dueDate: "" }); }}
+                >
+                    Create Borrow Record
+                </button>
+                <Input
+                    type="text"
+                    placeholder="Search by Member Name"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full"
+                />
+            </div>
 
             {isModalOpen && (
                 <Dialog open={isModalOpen} handler={() => setIsModalOpen(false)} size="md">
-                <DialogHeader>{editingId ? "Edit Borrow Record" : "Create Borrow Record"}</DialogHeader>
+                    <DialogHeader>{editingId ? "Edit Borrow Record" : "Create Borrow Record"}</DialogHeader>
                     <DialogBody>
                         <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
                             <div className="col-span-2">
                                 <Select label="Select Member" value={form.memberId} onChange={(value) => setForm({ ...form, memberId: value })}>
-                                {members.map(member => (
+                                    {members.map(member => (
                                         <Option key={member.id} value={member.id} className={member.active ? '' : 'hidden'}>
                                             {member.name} - {member.phone}
                                         </Option>
@@ -117,7 +136,7 @@ const BorrowManagement = () => {
 
                             <div className="col-span-2">
                                 <Select label="Select Book" value={form.bookId} onChange={(value) => setForm({ ...form, bookId: value })} required>
-                                {books.map(book => (
+                                    {books.map(book => (
                                         <Option className={`${book.availableCopies === 0 ? 'hidden' : ''}`} key={book.id} value={book.id}>{book.title}</Option>
                                     ))}
                                 </Select>
@@ -128,15 +147,15 @@ const BorrowManagement = () => {
 
                             <div className="col-span-2">
                                 <Select label="Status" value={form.status} onChange={(value) => setForm({ ...form, status: value })}>
-                                <Option value="BORROWED">Borrowed</Option>
+                                    <Option value="BORROWED">Borrowed</Option>
                                     <Option value="RETURNED">Returned</Option>
-                                    <Option value="OVERDUE">Overdue</Option>
+                                    {/*<Option value="OVERDUE">Overdue</Option>*/}
                                 </Select>
                             </div>
-                    <DialogFooter className="flex justify-end space-x-2">
-                        <Button variant="text" color="gray" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-                        <Button variant="gradient" color="blue" type="submit">{editingId ? "Update" : "Submit"}</Button>
-                    </DialogFooter>
+                            <DialogFooter className="flex justify-end space-x-2">
+                                <Button variant="text" color="gray" onClick={() => setIsModalOpen(false)}>Cancel</Button>
+                                <Button variant="gradient" color="blue" type="submit">{editingId ? "Update" : "Submit"}</Button>
+                            </DialogFooter>
                         </form>
                     </DialogBody>
                 </Dialog>
@@ -154,7 +173,7 @@ const BorrowManagement = () => {
                     </tr>
                     </thead>
                     <tbody>
-                    {borrowRecords.map((record, index) => (
+                    {filteredRecords.map((record) => (
                         <tr key={record.borrowId}>
                             <td className="p-2 border">{record.member.name}</td>
                             <td className="p-2 border">{record.book.title}</td>

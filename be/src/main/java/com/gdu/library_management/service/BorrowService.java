@@ -121,8 +121,11 @@ public class BorrowService {
         if (dto.getReturnDate() != null && dto.getReturnDate().isBefore(borrow.getBorrowDate())) {
             return ResponseEntity.badRequest().body("Return date cannot be before borrow date.");
         }
-
-        borrow.setReturnDate(dto.getReturnDate());
+        if (dto.getStatus().equals("BORROWED")) {
+            borrow.setReturnDate(null);
+        } else {
+            borrow.setReturnDate(dto.getReturnDate());
+        }
         borrow.setMember(member);
         borrow.setBook(book);
         borrowRepository.save(borrow);

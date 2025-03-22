@@ -15,6 +15,7 @@ import java.util.List;
 @CrossOrigin
 public class MemberController {
     private final MemberService memberService; 
+    
     @PostMapping
     ResponseEntity<String> insertMember(@RequestBody CreateMemberDTO createMemberDTO) {
         return memberService.insertMember(createMemberDTO);

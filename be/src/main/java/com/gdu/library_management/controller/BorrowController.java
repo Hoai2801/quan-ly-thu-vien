@@ -36,6 +36,8 @@ public class BorrowController {
     
     @PutMapping("/{id}")
     public ResponseEntity<String> updateBorrow(@PathVariable Integer id, @RequestBody CreateBorrowDTO createBorrowDTO) {
+        System.out.println(id);
+        System.out.println(createBorrowDTO);
         return borrowService.updateBorrow(id, createBorrowDTO);
     }
     
